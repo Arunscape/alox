@@ -46,17 +46,16 @@ pub(crate) enum TokenType {
     TRUE,
     VAR,
     WHILE,
-
     EOF,
 }
 
 #[allow(dead_code)]
 #[derive(Debug)]
 pub(crate) struct Token {
-    type_: TokenType,
-    lexeme: String,
-    literal: Option<Literal>,
-    line: usize,
+    pub type_: TokenType,
+    pub lexeme: String,
+    pub literal: Option<Literal>,
+    pub line: usize,
 }
 
 #[allow(dead_code)]
