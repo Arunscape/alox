@@ -1,5 +1,8 @@
 //#![feature(unsized_locals)]
-use crate::token::{Literal, Token, TokenType};
+use crate::{
+    error,
+    token::{Literal, Token, TokenType},
+};
 
 struct Scanner {
     source: String,
@@ -54,7 +57,48 @@ impl Scanner {
             '+' => self.add_token(TokenType::Plus, None),
             ';' => self.add_token(TokenType::Semicolon, None),
             '*' => self.add_token(TokenType::Star, None),
-            _ => unimplemented!(),
+            '!' => {
+                if self.match_char('=') {
+                    self.add_token(TokenType::BangEqual, None)
+                } else {
+                    self.add_token(TokenType::Bang, None)
+                }
+            }
+            '=' => {
+                if self.match_char('=') {
+                    self.add_token(TokenType::EqualEqual, None)
+                } else {
+                    self.add_token(TokenType::Equal, None)
+                }
+            }
+            '<' => {
+                if self.match_char('=') {
+                    self.add_token(TokenType::LessEqual, None)
+                } else {
+                    self.add_token(TokenType::Less, None)
+                }
+            }
+            '>' => {
+                if self.match_char('=') {
+                    self.add_token(TokenType::GreaterEqual, None)
+                } else {
+                    self.add_token(TokenType::Greater, None)
+                }
+            }
+            '/' => {
+                if self.match_char('/') {
+                    while self.peek() != '\n' && !self.is_at_end() {
+                        self.advance();
+                    }
+                } else {
+                    self.add_token(TokenType::Slash, None)
+                }
+            }
+            ' ' | '\r' | '\t' => {
+                //ignore whitespace
+            }
+            '\n' => self.line += 1,
+            _ => error::error(self.line, "Unexpected character!"),
         };
     }
 
@@ -71,5 +115,26 @@ impl Scanner {
             literal,
             line: self.line,
         })
+    }
+
+    fn match_char(&mut self, expected: char) -> bool {
+        if self.is_at_end() {
+            return false;
+        }
+
+        if self.source.chars().nth(self.current).unwrap() != expected {
+            return false;
+        }
+
+        self.current += 1;
+        true
+    }
+
+    fn peek(&self) -> char {
+        if self.is_at_end() {
+            return '\0';
+        }
+
+        self.source.chars().nth(self.current).unwrap()
     }
 }
