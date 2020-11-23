@@ -1,4 +1,4 @@
-//#![feature(unsized_locals)]
+#![feature(unsized_locals)]
 use crate::{
     error,
     token::{Literal, Token, TokenType},
@@ -97,6 +97,7 @@ impl Scanner {
             ' ' | '\r' | '\t' => {
                 //ignore whitespace
             }
+            '"' => self.string(),
             '\n' => self.line += 1,
             _ => error::error(self.line, "Unexpected character!"),
         };
@@ -136,5 +137,26 @@ impl Scanner {
         }
 
         self.source.chars().nth(self.current).unwrap()
+    }
+
+    fn string(&mut self) {
+        while self.peek() != '"' && !self.is_at_end() {
+            if self.peek() == '\n' {
+                self.line += 1;
+            }
+            self.advance();
+        }
+
+        if self.is_at_end() {
+            error::error(self.line, "Unterminated string! Try adding a \"");
+            return;
+        }
+
+        self.advance(); // the other "
+
+        // trim the quotes
+        let value = self.source[self.start + 1..self.current - 1].into();
+
+        self.add_token(TokenType::STRING, Some(Literal::String(value)))
     }
 }
