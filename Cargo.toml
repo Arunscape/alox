@@ -3,6 +3,7 @@ name = "alox"
 version = "0.1.0"
 authors = ["Arunscape <8227297+Arunscape@users.noreply.github.com>"]
 edition = "2018"
+rust = "1.50"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
