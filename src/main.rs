@@ -2,6 +2,8 @@
 #![feature(exclusive_range_pattern)]
 #![feature(precise_pointer_size_matching)]
 #![allow(dead_code)]
+#![warn(clippy::all)]
+
 use std::env;
 use std::process::exit;
 

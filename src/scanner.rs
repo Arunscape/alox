@@ -1,4 +1,3 @@
-#![feature(unsized_locals)]
 use crate::{
     error,
     token::{Literal, Token, TokenType},
@@ -99,6 +98,7 @@ impl Scanner {
             }
             '"' => self.string(),
             '\n' => self.line += 1,
+            c if Self::is_digit(c) => self.number(),
             _ => error::error(self.line, "Unexpected character!"),
         };
     }
@@ -158,5 +158,35 @@ impl Scanner {
         let value = self.source[self.start + 1..self.current - 1].into();
 
         self.add_token(TokenType::STRING, Some(Literal::String(value)))
+    }
+
+    fn is_digit(c: char) -> bool {
+        ('0'..='9').contains(&c)
+    }
+
+    fn number(&mut self) {
+        while Self::is_digit(self.peek()) {
+            self.advance();
+        }
+
+        // look for fraction part
+        if self.peek() == '.' && Self::is_digit(self.peek_next()) {
+            self.advance();
+
+            while Self::is_digit(self.peek()) {
+                self.advance();
+            }
+        }
+
+        let number = self.source[self.start..self.current].parse().unwrap();
+        self.add_token(TokenType::NUMBER, Some(Literal::Number(number)));
+    }
+
+    fn peek_next(&self) -> char {
+        if self.current + 1 >= self.source.len() {
+            return '\0';
+        }
+
+        self.source.chars().nth(self.current + 1).unwrap()
     }
 }
