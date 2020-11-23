@@ -1,7 +1,7 @@
 #![feature(half_open_range_patterns)]
 #![feature(exclusive_range_pattern)]
 #![feature(precise_pointer_size_matching)]
-
+#![allow(dead_code)]
 use std::env;
 use std::process::exit;
 
