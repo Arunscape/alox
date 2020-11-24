@@ -3,7 +3,7 @@ use crate::{
     token::{Literal, Token, TokenType},
 };
 
-struct Scanner {
+pub struct Scanner {
     source: String,
     tokens: Vec<Token>,
     start: usize,
@@ -24,6 +24,15 @@ impl Default for Scanner {
 }
 
 impl Scanner {
+    pub fn new(source: String) -> Self {
+        Self {
+            source,
+            tokens: Vec::new(),
+            start: 0,
+            current: 0,
+            line: 1,
+        }
+    }
     pub fn scan_tokens(mut self) -> Vec<Token> {
         while !self.is_at_end() {
             self.start = self.current;
@@ -99,6 +108,7 @@ impl Scanner {
             '"' => self.string(),
             '\n' => self.line += 1,
             c if Self::is_digit(c) => self.number(),
+            c if Self::is_alpha(c) => self.identifier(),
             _ => error::error(self.line, "Unexpected character!"),
         };
     }
@@ -188,5 +198,40 @@ impl Scanner {
         }
 
         self.source.chars().nth(self.current + 1).unwrap()
+    }
+
+    fn is_alpha(c: char) -> bool {
+        ('a'..='z').contains(&c) || ('A'..='Z').contains(&c) || c == '_'
+    }
+
+    fn is_alphanumeric(c: char) -> bool {
+        Self::is_alpha(c) || Self::is_digit(c)
+    }
+    fn identifier(&mut self) {
+        while Self::is_alphanumeric(self.peek()) {
+            self.advance();
+        }
+
+        let text = &self.source[self.start..self.current];
+
+        match text {
+            "and" => self.add_token(TokenType::AND, None),
+            "class" => self.add_token(TokenType::CLASS, None),
+            "else" => self.add_token(TokenType::ELSE, None),
+            "false" => self.add_token(TokenType::FALSE, None),
+            "for" => self.add_token(TokenType::FOR, None),
+            "fun" => self.add_token(TokenType::FUN, None),
+            "if" => self.add_token(TokenType::IF, None),
+            "nil" => self.add_token(TokenType::NIL, None),
+            "or" => self.add_token(TokenType::OR, None),
+            "print" => self.add_token(TokenType::PRINT, None),
+            "return" => self.add_token(TokenType::RETURN, None),
+            "super" => self.add_token(TokenType::SUPER, None),
+            "this" => self.add_token(TokenType::THIS, None),
+            "true" => self.add_token(TokenType::TRUE, None),
+            "var" => self.add_token(TokenType::VAR, None),
+            "while" => self.add_token(TokenType::WHILE, None),
+            _ => self.add_token(TokenType::IDENTIFIER, None),
+        }
     }
 }

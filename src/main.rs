@@ -16,9 +16,10 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     match args.len() {
-        0 => run::run_prompt(),
-        1 => run::run_file(&args[0]),
-        (2..) => {
+        0 => unreachable!(),
+        1 => run::run_prompt(),
+        2 => run::run_file(&args[0]),
+        (3..) => {
             println!("Usage: alox [script]");
             exit(64);
         }

@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub(crate) enum TokenType {
+pub enum TokenType {
     // Single-character tokens.
     LeftParen,
     RightParen,
@@ -49,7 +49,7 @@ pub(crate) enum TokenType {
 }
 
 #[derive(Debug)]
-pub(crate) struct Token {
+pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
     pub literal: Option<Literal>,
