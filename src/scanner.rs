@@ -109,7 +109,7 @@ impl Scanner {
             '\n' => self.line += 1,
             c if Self::is_digit(c) => self.number(),
             c if Self::is_alpha(c) => self.identifier(),
-            _ => error::error(self.line, "Unexpected character!"),
+            _ => error::error(self.tokens[self.current].clone(), "Unexpected character!"),
         };
     }
 
@@ -158,7 +158,10 @@ impl Scanner {
         }
 
         if self.is_at_end() {
-            error::error(self.line, "Unterminated string! Try adding a \"");
+            error::error(
+                self.tokens[self.current].clone(),
+                "Unterminated string! Try adding a \"",
+            );
             return;
         }
 

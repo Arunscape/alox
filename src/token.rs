@@ -1,4 +1,6 @@
-#[derive(Debug, Copy, Clone)]
+use std::fmt::{Display, Formatter};
+
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TokenType {
     // Single-character tokens.
     LeftParen,
@@ -48,7 +50,7 @@ pub enum TokenType {
     EOF,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
@@ -56,6 +58,11 @@ pub struct Token {
     pub line: usize,
 }
 
+impl Display for Token {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.lexeme)
+    }
+}
 #[derive(Debug, Clone)]
 pub enum Literal {
     Nil,
