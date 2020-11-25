@@ -44,6 +44,7 @@ impl Parser {
     fn match_tokens(&mut self, types: &[TokenType]) -> bool {
         for &t in types {
             if self.check(t) {
+                self.advance();
                 return true;
             }
         }
@@ -167,23 +168,31 @@ impl Parser {
 
         if self.match_tokens(&[TokenType::LeftParen]) {
             let expr = self.expression()?;
-            self.consume(TokenType::RightParen, "Expected ')' after expression!");
+            self.consume(TokenType::RightParen, "Expected ')' after expression!")?;
             return Ok(Expr::Grouping(Box::new(expr)));
         }
 
-        panic!("{}\n{}", self.peek(), "Expected expression!");
+        Err(ParseError {
+            tokens: self.tokens.clone(),
+            current: self.current,
+            message: format!("{}\n{}", self.peek(), "Expected expression!"),
+        })
     }
 
-    fn consume(&mut self, token_type: TokenType, message: &str) -> Token {
+    fn consume(&mut self, token_type: TokenType, message: &str) -> Result<Token, ParseError> {
         if self.check(token_type) {
-            return self.advance();
+            return Ok(self.advance());
         }
         panic!("{}\n{}", self.peek(), message);
     }
 
-    fn error(token: Token, message: &str) -> ParseError {
+    fn error(self, token: Token, message: &str) -> ParseError {
         error::error(token, message);
-        ParseError {}
+        ParseError {
+            tokens: self.tokens,
+            current: self.current,
+            message: message.into(),
+        }
     }
     fn synchronize(&mut self) {
         self.advance();
@@ -214,4 +223,8 @@ impl Parser {
     }
 }
 
-struct ParseError {}
+struct ParseError {
+    tokens: Vec<Token>,
+    current: usize,
+    message: String,
+}
