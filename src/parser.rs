@@ -15,7 +15,8 @@ use crate::{
     token::{Literal, Token, TokenType},
 };
 
-enum Expr {
+#[derive(Debug)]
+pub enum Expr {
     Binary {
         left: Box<Expr>,
         operator: Token,
@@ -36,7 +37,7 @@ pub struct Parser {
 }
 
 impl Parser {
-    fn new(tokens: Vec<Token>) -> Self {
+    pub fn new(tokens: Vec<Token>) -> Self {
         Self { tokens, current: 0 }
     }
 
@@ -208,8 +209,8 @@ impl Parser {
         }
     }
 
-    fn parse(&mut self) -> Result<Expr, ParseError> {
-        self.expression()
+    pub fn parse(&mut self) -> Option<Expr> {
+        self.expression().ok()
     }
 }
 

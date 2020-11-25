@@ -1,4 +1,4 @@
-use crate::scanner::Scanner;
+use crate::{parser::Parser, scanner::Scanner};
 use std::fs;
 use std::io;
 use std::io::Write;
@@ -7,8 +7,11 @@ pub fn run(source: String) {
     let scanner = Scanner::new(source);
     let tokens = scanner.scan_tokens();
 
-    for token in tokens {
-        println!("{:?}", token);
+    let mut parser = Parser::new(tokens);
+    let expression = parser.parse();
+
+    if let Some(e) = expression {
+        println!("{:?}", e)
     }
 }
 
