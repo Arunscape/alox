@@ -17,13 +17,13 @@ use crate::{
 
 enum Expr {
     Binary {
-        left: Option<Box<Expr>>,
+        left: Box<Expr>,
         operator: Token,
-        right: Option<Box<Expr>>,
+        right: Box<Expr>,
     },
     Unary {
         operator: Token,
-        right: Option<Box<Expr>>,
+        right: Box<Expr>,
     },
     Literal(Literal),
     Grouping(Box<Expr>),
@@ -75,27 +75,27 @@ impl Parser {
         self.previous()
     }
 
-    fn expression(&mut self) -> Expr {
+    fn expression(&mut self) -> Result<Expr, ParseError> {
         self.equality()
     }
 
-    fn equality(&mut self) -> Expr {
-        let mut expr = self.comparison();
+    fn equality(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.comparison()?;
 
         while self.match_tokens(&[TokenType::BangEqual, TokenType::EqualEqual]) {
             let operator = self.previous();
-            let right = self.comparison();
+            let right = self.comparison()?;
             expr = Expr::Binary {
-                left: Some(Box::new(expr)),
+                left: Box::new(expr),
                 operator,
-                right: Some(Box::new(right)),
+                right: Box::new(right),
             };
         }
-        expr
+        Ok(expr)
     }
 
-    fn comparison(&mut self) -> Expr {
-        let mut expr = self.term();
+    fn comparison(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.term()?;
 
         while self.match_tokens(&[
             TokenType::Greater,
@@ -104,70 +104,70 @@ impl Parser {
             TokenType::LessEqual,
         ]) {
             let operator = self.previous();
-            let right = self.term();
+            let right = self.term()?;
             expr = Expr::Binary {
-                left: Some(Box::new(expr)),
+                left: Box::new(expr),
                 operator,
-                right: Some(Box::new(right)),
+                right: Box::new(right),
             };
         }
-        expr
+        Ok(expr)
     }
-    fn term(&mut self) -> Expr {
-        let mut expr = self.factor();
+    fn term(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.factor()?;
 
         while self.match_tokens(&[TokenType::Minus, TokenType::Plus]) {
             let operator = self.previous();
-            let right = self.factor();
+            let right = self.factor()?;
             expr = Expr::Binary {
-                left: Some(Box::new(expr)),
+                left: Box::new(expr),
                 operator,
-                right: Some(Box::new(right)),
+                right: Box::new(right),
             };
         }
-        expr
+        Ok(expr)
     }
-    fn factor(&mut self) -> Expr {
-        let mut expr = self.unary();
+    fn factor(&mut self) -> Result<Expr, ParseError> {
+        let mut expr = self.unary()?;
 
         while self.match_tokens(&[TokenType::Slash, TokenType::Star]) {
             let operator = self.previous();
-            let right = self.unary();
+            let right = self.unary()?;
             expr = Expr::Binary {
-                left: Some(Box::new(expr)),
+                left: Box::new(expr),
                 operator,
-                right: Some(Box::new(right)),
+                right: Box::new(right),
             };
         }
-        expr
+        Ok(expr)
     }
-    fn unary(&mut self) -> Expr {
+    fn unary(&mut self) -> Result<Expr, ParseError> {
         if self.match_tokens(&[TokenType::Bang, TokenType::Minus]) {
             let operator = self.previous();
-            let right = self.unary();
-            return Expr::Unary {
+            let right = self.unary()?;
+            return Ok(Expr::Unary {
                 operator,
-                right: Some(Box::new(right)),
-            };
+                right: Box::new(right),
+            });
         }
         self.primary()
     }
-    fn primary(&mut self) -> Expr {
+    fn primary(&mut self) -> Result<Expr, ParseError> {
         if self.match_tokens(&[TokenType::FALSE]) {
-            return Expr::Literal(Literal::Boolean(false));
+            return Ok(Expr::Literal(Literal::Boolean(false)));
         }
         if self.match_tokens(&[TokenType::TRUE]) {
-            return Expr::Literal(Literal::Boolean(true));
+            return Ok(Expr::Literal(Literal::Boolean(true)));
         }
 
         if self.match_tokens(&[TokenType::NUMBER, TokenType::STRING]) {
-            return Expr::Literal(self.previous().literal.unwrap());
+            return Ok(Expr::Literal(self.previous().literal.unwrap()));
         }
 
         if self.match_tokens(&[TokenType::LeftParen]) {
-            let expr = self.expression();
+            let expr = self.expression()?;
             self.consume(TokenType::RightParen, "Expected ')' after expression!");
-            return Expr::Grouping(Box::new(expr));
+            return Ok(Expr::Grouping(Box::new(expr)));
         }
 
         panic!("{}\n{}", self.peek(), "Expected expression!");
@@ -208,8 +208,8 @@ impl Parser {
         }
     }
 
-    fn parse(&mut self) -> Result<(), ParseError> {
-        self.expression();
+    fn parse(&mut self) -> Result<Expr, ParseError> {
+        self.expression()
     }
 }
 
