@@ -41,12 +41,12 @@ impl Interpreter {
                     TokenType::Minus => left - right,
                     TokenType::Slash => left / right,
                     TokenType::Star => left * right,
-                    TokenType::Greater => left > right,
-                    TokenType::GreaterEqual => left >= right,
-                    TokenType::Less => left < right,
-                    TokenType::LessEqual => left <= right,
-                    TokenType::BangEqual => left != right,
-                    TokenType::EqualEqual => left == right,
+                    TokenType::Greater => Literal::Boolean(left > right),
+                    TokenType::GreaterEqual => Literal::Boolean(left >= right),
+                    TokenType::Less => Literal::Boolean(left < right),
+                    TokenType::LessEqual => Literal::Boolean(left <= right),
+                    TokenType::BangEqual => Literal::Boolean(left != right),
+                    TokenType::EqualEqual => Literal::Boolean(left == right),
                     _ => unreachable!(),
                 }
             }
