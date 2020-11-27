@@ -8,6 +8,7 @@ use std::env;
 use std::process::exit;
 
 mod error;
+mod interpreter;
 mod parser;
 mod run;
 mod scanner;

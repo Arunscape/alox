@@ -30,6 +30,12 @@ pub enum Expr {
     Grouping(Box<Expr>),
 }
 
+impl Expr {
+    pub fn accept(&self, other: Literal) {
+        todo!()
+    }
+}
+
 /// A recursive descent parser
 pub struct Parser {
     tokens: Vec<Token>,

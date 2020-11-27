@@ -63,7 +63,7 @@ impl Display for Token {
         write!(f, "{}", self.lexeme)
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     Nil,
     Boolean(bool),
@@ -134,6 +134,17 @@ impl std::ops::Div for Literal {
         match (self, other) {
             (Self::Number(x), Self::Number(y)) => Self::Number(x / y),
             _ => unreachable!(),
+        }
+    }
+}
+
+impl PartialOrd for Literal {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        match (self, other) {
+            (Self::Number(x), Self::Number(y)) => x.partial_cmp(y),
+            (Self::String(x), Self::String(y)) => Some(x.cmp(y)),
+            (Self::Boolean(x), Self::Boolean(y)) => Some(x.cmp(y)),
+            _ => None,
         }
     }
 }
