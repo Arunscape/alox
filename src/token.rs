@@ -70,3 +70,70 @@ pub enum Literal {
     Number(f64),
     String(String),
 }
+
+impl std::ops::Neg for Literal {
+    type Output = Self;
+
+    fn neg(self) -> Self {
+        match self {
+            Self::Number(n) => Self::Number(-n),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::ops::Not for Literal {
+    type Output = Self;
+
+    fn not(self) -> Self {
+        match self {
+            Self::Boolean(n) => Self::Boolean(!n),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::ops::Add for Literal {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Number(x), Self::Number(y)) => Self::Number(x + y),
+            (Self::String(x), Self::String(y)) => Self::String(x + &y),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::ops::Sub for Literal {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Number(x), Self::Number(y)) => Self::Number(x - y),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::ops::Mul for Literal {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Number(x), Self::Number(y)) => Self::Number(x * y),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl std::ops::Div for Literal {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::Number(x), Self::Number(y)) => Self::Number(x / y),
+            _ => unreachable!(),
+        }
+    }
+}
